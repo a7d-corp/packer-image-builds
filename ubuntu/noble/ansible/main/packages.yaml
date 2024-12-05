@@ -1,0 +1,26 @@
+---
+- name: packages | install packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - nfs-common
+    - socat
+    - ebtables
+    - ethtool
+    - conntrack
+    - cloud-initramfs-growroot
+    - software-properties-common
+
+- name: packages | remove packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: absent
+    purge: true
+  loop:
+    - snapd
+
+# disabled until ansible is updated on ubuntu
+#- name: packages | clean cache
+#  ansible.builtin.apt:
+#    clean: true

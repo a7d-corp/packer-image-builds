@@ -1,0 +1,55 @@
+---
+- name: users | create users
+  user:
+    name: "{{ item.name }}"
+    state: "{{ item.state if item.state is defined else 'present' }}"
+    shell: "{{ item.shell if item.shell is defined else '/bin/false' }}"
+    home: "{{ item.homedir if item.homedir is defined else '/home/'+ item.name }}"
+    createhome: "{{ true if item.shell is defined else false }}"
+  loop: "{{ user_list }}"
+
+- name: users | add SSH keys
+  authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "https://gitea.analbeard.com/simon/ssh-keys/raw/branch/master/{{ item.name }}"
+  loop: "{{ user_list }}"
+  when: item.ssh_enabled | default([])
+
+- name: users | set passwords
+  user:
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+  loop: "{{ user_list }}"
+  when: item.password is defined
+
+- name: users | create additional groups
+  group:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ group_list }}"
+
+- name: users | append users to groups
+  user:
+    name: "{{ item.0.name }}"
+    groups: "{{ item.1 }}"
+    append: yes
+  loop: "{{ user_list|subelements('additional_groups') }}"
+  loop_control:
+    label: "{{ item.0.name }}:{{ item.1 }}"
+
+- name: users | allow admin group to sudo
+  copy:
+    dest: /etc/sudoers.d/admin-group
+    content: |
+      %admin ALL=(ALL) NOPASSWD: ALL
+    mode: 0644
+    validate: 'visudo -cf %s'
+
+- name: users | silence motd
+  ansible.builtin.file:
+    path: "/home/{{ item.name }}/.hushlogin"
+    state: touch
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+  loop: "{{ user_list }}"

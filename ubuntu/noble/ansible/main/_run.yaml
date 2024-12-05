@@ -1,0 +1,16 @@
+- name: configure base image
+  hosts: all
+  connection: ssh
+  gather_facts: yes
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  tasks:
+  - include_vars: vars.yaml
+
+  - import_tasks: users.yaml
+  - import_tasks: packages.yaml
+  - import_tasks: unattended-upgrades.yaml
+  - import_tasks: lvm.yaml
+  - import_tasks: misc-actions.yaml

@@ -2,7 +2,6 @@ build {
     name = "ubuntu-server-noble-numbat"
     sources = ["proxmox-iso.ubuntu-server-noble-numbat"]
 
-    # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
     provisioner "shell" {
         inline = [
             "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done",
@@ -18,13 +17,11 @@ build {
         ]
     }
 
-    # Provisioning the VM Template for Cloud-Init Integration in Proxmox #2
     provisioner "file" {
-        source = "files/99-pve.cfg"
+        source = "files/99-pve-cloudinit.cfg"
         destination = "/tmp/99-pve.cfg"
     }
 
-    # Provisioning the VM Template for Cloud-Init Integration in Proxmox #3
     provisioner "shell" {
         inline = [ "sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg" ]
     }

@@ -1,0 +1,39 @@
+---
+- name: misc | create hosts file update script
+  ansible.builtin.copy:
+    content: |
+      #!/bin/sh
+      hostname=$(hostname)
+      if ! grep -q $hostname /etc/hosts; then
+        echo "127.0.0.1 $hostname" >> /etc/hosts
+      fi
+    dest: /usr/local/bin/update-etc-hosts
+    mode: 0755
+
+- name: misc | create hosts file update script systemd unit
+  ansible.builtin.copy:
+    content: |
+      [Unit]
+      Description=Run hosts file update script
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/update-etc-hosts
+      RemainAfterExit=true
+
+      [Install]
+      WantedBy=multi-user.target
+    dest: /etc/systemd/system/update-etc-hosts.service
+    mode: 0644
+
+- name: misc | enable hosts file update script systemd unit
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    enabled: yes
+    name: update-etc-hosts.service
+
+- name: misc |  ensure template hostname is removed
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    state: absent
+    regexp: '^.*ubuntu-template$'

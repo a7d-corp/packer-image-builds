@@ -1,0 +1,34 @@
+---
+- name: lvm | create resize script
+  ansible.builtin.copy:
+    content: |
+      #!/bin/sh
+      /usr/bin/growpart /dev/sda 3
+      /usr/sbin/pvresize -y -q /dev/sda3
+      /usr/sbin/lvresize -y -q -r -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+      /usr/sbin/resize2fs -fF /dev/ubuntu-vg/ubuntu-lv
+      exit 0
+    dest: /usr/local/bin/resize-lvm
+    mode: 0755
+
+- name: lvm | create resize script systemd unit
+  ansible.builtin.copy:
+    content: |
+      [Unit]
+      Description=Run LVM resize script
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/resize-lvm
+      RemainAfterExit=true
+
+      [Install]
+      WantedBy=multi-user.target
+    dest: /etc/systemd/system/resize-lvm.service
+    mode: 0644
+
+- name: lvm | enable resize script systemd unit
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    enabled: yes
+    name: resize-lvm.service

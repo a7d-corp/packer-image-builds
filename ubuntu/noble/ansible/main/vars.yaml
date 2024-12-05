@@ -1,0 +1,20 @@
+group_list:
+  - "admin"
+  - "docker"
+
+user_list:
+  - name: shw
+    password: '$6$Yvq/ATKCBzVRSvfU$4UvnYdzNZidbmqfTWLlMrVjd0.qV2t9mBFEsRTzjJEQdWdV0ZdvG0JCPeXSbU1zNTpwtiYKQwkODrierVcEP61'
+    ssh_enabled: true
+    shell: '/bin/bash'
+    group: shw
+    additional_groups:
+      - admin
+      - docker
+  - name: ansible
+    ssh_enabled: true
+    shell: '/bin/bash'
+    group: ansible
+    additional_groups:
+      - admin
+      - docker

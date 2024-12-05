@@ -1,0 +1,36 @@
+name: Build Proxmox images
+
+on:
+  workflow_dispatch:
+    inputs:
+      distro:
+        description: "Distro name (e.g. ubuntu)"
+        required: true
+        type: string
+      release:
+        description: "Distro release version (e.g. noble)"
+        required: true
+        type: string
+
+env:
+  PVE_API_TOKEN: ${{ secrets.PVE_API_TOKEN }}
+  PVE_API_URL: ${{ secrets.PVE_API_URL }}
+  DISTRO: "${{ github.event.inputs.distro }}"
+  VERSION: "${{ github.event.inputs.release }}"
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: export env vars
+      run: |
+        DISTRO="${{ github.event.inputs.distro }}"
+        echo "DISTRO=${DISTRO}" >> $GITHUB_ENV
+        RELEASE="${{ github.event.inputs.release }}"
+        echo "RELEASE=${RELEASE}" >> $GITHUB_ENV
+    - name: delete existing images
+      run: deploy/delete_templates.sh
+    - name: build new images
+      run: deploy/build_templates.sh
