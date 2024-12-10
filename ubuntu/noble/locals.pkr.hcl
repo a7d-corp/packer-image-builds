@@ -1,14 +1,14 @@
 
 local "proxmox_url" {
-    expression = vault("proxmox/packer-pve-auth", "url")
+    expression = vault("proxmox/data/packer-pve-auth", "url")
 }
 
 local "proxmox_username" {
-    expression = vault("proxmox/packer-pve-auth", "username")
+    expression = vault("proxmox/data/packer-pve-auth", "username")
 }
 
 local "proxmox_token" {
-    expression = vault("proxmox/packer-pve-auth", "token")
+    expression = vault("proxmox/data/packer-pve-auth", "token")
     sensitive  = true
 }
 

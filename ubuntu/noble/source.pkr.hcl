@@ -56,7 +56,7 @@ source "proxmox-iso" "ubuntu-server-noble-numbat" {
     http_port_max = 8802
     
     ssh_username = "packer"
-    ssh_password = "packer
+    ssh_password = "packer"
     ssh_timeout = "30m"
 
     # cloud_init = true
