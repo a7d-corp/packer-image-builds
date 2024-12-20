@@ -1,64 +1,64 @@
 source "proxmox-iso" "ubuntu-server-noble-numbat" {
 
-    proxmox_url = "${local.proxmox_url}"
-    username = "${local.proxmox_username}"
-    token = "${local.proxmox_token}"
-    insecure_skip_tls_verify = "${var.proxmox_insecure_tls}"
+    # Proxmox API config
+    proxmox_url                 = local.proxmox_url
+    username                    = local.proxmox_username
+    token                       = local.proxmox_token
+    insecure_skip_tls_verify    = local.proxmox_insecure_tls
 
-    node = "${var.proxmox_node}"
-    vm_id = "${var.vm_id}"
-    vm_name = "packer-ubuntu-noble-2404"
+    # general template config
+    node                    = var.proxmox_node  # passed on the commandline at build-time
+    vm_id                   = var.vm_id         # passed on the commandline at build-time
+    vm_name                 = var.template_name
 
-    template_description = "${local.template_description}"
-    template_name = "${var.template_name}"
+    template_description    = local.template_description
+    template_name           = var.template_name
 
-    cores = "1"
-    memory = "2048"
-    
-    qemu_agent = true
-    scsi_controller = "virtio-scsi-pci"
-
-    boot_iso {
-        type = "scsi"
-        iso_file = "${var.proxmox_iso_storage_pool}:${var.proxmox_iso_storage_type}/${var.iso_template_name}"
-        unmount = true
-        iso_checksum = "${var.iso_checksum}"
-    }
-
-    disks {
-        disk_size = "20G"
-        format = "raw"
-        storage_pool = "local-lvm"
-        type = "virtio"
-    }
-
+    # VM spec
+    cores               = var.cores
+    cpu_type            = var.cpu_type
+    memory              = var.memory
+    qemu_agent          = var.qemu_agent
+    scsi_controller     = var.scsi_controller
+   
+    # network devices
     network_adapters {
-        model = "virtio"
-        bridge = "vmbr0"
-        firewall = "false"
+        model       = var.network_adapter_model
+        bridge      = var.network_adapter_bridge
+        firewall    = var.network_adapter_firewall
     }
 
-    boot_command = [
-        "<esc><wait>",
-        "e<wait>",
-        "<down><down><down><end>",
-        "<bs><bs><bs><bs><wait>",
-        "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait>",
-        "<f10><wait>"
-    ]
-    
-    boot = "order=scsi0;ide2"
-    boot_wait = "5s"
+    # Ubuntu setup iso
+    boot_iso {
+        type            = var.boot_iso_type
+        iso_file        = local.iso_path
+        unmount         = var.boot_iso_unmount
+        iso_checksum    = var.install_iso_checksum
+    }
 
-    http_directory = "http"
-    #http_bind_address = "10.1.149.166"
-    http_port_min = 8802
-    http_port_max = 8802
+    # root disk
+    disks {
+        disk_size       = var.root_disk_size
+        format          = var.root_disk_format
+        storage_pool    = local.vm_storage_pool
+        type            = var.root_disk_type
+    }
     
-    ssh_username = "packer"
-    ssh_password = "packer"
-    ssh_timeout = "30m"
+    # cloudinit iso
+    additional_iso_files {
+        cd_content          = local.data_source_content
+        cd_label            = var.cloudinit_cd_label
+        iso_storage_pool    = local.iso_storage_pool
+        unmount             = var.cloudinit_iso_unmount
+    }
 
-    # cloud_init = true
-    # cloud_init_storage_pool = "local-lvm"
+    boot_command    = var.vm_boot_command
+    boot            = var.vm_boot_order
+    boot_wait       = var.vm_boot_wait
+
+    communicator            = var.communicator_type
+    ssh_private_key_file    = local.build_ssh_private_key
+    ssh_port                = var.communicator_port
+    ssh_timeout             = var.communicator_timeout
+    ssh_username            = local.build_username
 }
