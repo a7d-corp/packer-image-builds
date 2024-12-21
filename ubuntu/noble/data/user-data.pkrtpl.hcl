@@ -16,12 +16,11 @@ autoinstall:
     network:
       version: 2
       ethernets:
-        mainif:
+        all-en:
           match:
             name: e*
           critical: true
           dhcp4: true
-          dhcp-identifier: mac
 %{ if length( apt_packages ) > 0 ~}
   packages:
 %{ for package in apt_packages ~}
