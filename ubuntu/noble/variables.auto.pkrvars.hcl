@@ -4,13 +4,12 @@ template_name         = "template-ubuntu-2404"
 template_description  = "Ubuntu 2404 Noble Numbat"
 
 cores             = 1
-cpu_type          = "l26"
+cpu_type          = "host"
 memory            = 2048
 qemu_agent        = true
 scsi_controller   = "virtio-scsi-pci"
 
 network_adapter_model     = "virtio"
-network_adapter_bridge    = "vmbr0"
 network_adapter_firewall  = false
 
 boot_iso_type     = "scsi"
@@ -23,14 +22,17 @@ root_disk_type    = "virtio"
 cloudinit_cd_label = "cidata"
 cloudinit_iso_unmount = true
 
-vm_boot_order     = "order=scsi0;ide2"
-vm_boot_wait      = "5s"
+#vm_boot_order     = "order=scsi0;ide2"
+vm_boot_order     = "order=virtio0;scsi0"
+vm_boot_wait      = "10s"
 vm_boot_command   = [
     "<esc><wait>c",
     "linux /casper/vmlinuz --- autoinstall ds=\"nocloud\"",
-    "<enter><wait5s>",
+    "<enter>",
+    "<wait> <bs><wait> <bs><wait> <bs><wait> <bs><wait> <bs>",
     "initrd /casper/initrd",
-    "<enter><wait5s>",
+    "<enter>",
+    "<wait> <bs><wait> <bs><wait> <bs><wait> <bs><wait> <bs>",
     "boot",
     "<enter>"
   ]
