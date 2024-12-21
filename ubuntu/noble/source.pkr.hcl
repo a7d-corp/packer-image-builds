@@ -20,12 +20,13 @@ source "proxmox-iso" "ubuntu-server-noble-numbat" {
     memory              = var.memory
     qemu_agent          = var.qemu_agent
     scsi_controller     = var.scsi_controller
-   
+
     # network devices
     network_adapters {
         model       = var.network_adapter_model
-        bridge      = var.network_adapter_bridge
+        bridge      = local.nic_bridge
         firewall    = var.network_adapter_firewall
+        vlan_tag    = local.nic_vlan_tag
     }
 
     # Ubuntu setup iso
@@ -43,7 +44,7 @@ source "proxmox-iso" "ubuntu-server-noble-numbat" {
         storage_pool    = local.vm_storage_pool
         type            = var.root_disk_type
     }
-    
+
     # cloudinit iso
     additional_iso_files {
         cd_content          = local.data_source_content

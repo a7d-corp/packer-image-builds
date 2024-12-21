@@ -47,10 +47,6 @@ variable "network_adapter_model" {
     type = string
 }
 
-variable "network_adapter_bridge" {
-    type = string
-}
-
 variable "network_adapter_firewall" {
     type = bool
 }
