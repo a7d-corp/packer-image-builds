@@ -37,3 +37,22 @@
     path: /etc/hosts
     state: absent
     regexp: '^.*ubuntu-template$'
+
+- name: misc | delete SSH host keys
+  ansible.builtin.shell: /bin/rm -rf /etc/ssh/ssh_host_*
+
+- name: misc | delete cloudinit config files
+  ansible.builtin.shell: /bin/rm -rf /etc/cloud/cloud.cfg.d/*
+
+- name: misc | delete netplan config files
+  ansible.builtin.shell: /bin/rm -rf /etc/netplan/*
+
+- name: misc | truncate machine-id
+  ansible.builtin.shell: /bin/truncate -s 0 /etc/machine-id
+
+- name: misc | create proxmox cloudinit config
+  ansible.builtin.copy:
+    content: |
+      datasource_list: [ConfigDrive, NoCloud] 
+    dest: /etc/cloud/cloud.cfg.d/99-pve.cfg
+    mode: 0644
